@@ -63,6 +63,20 @@ function redrawCanvas() {
         distanceFactorX = -1 * (cos(angle) * (50 - distance));
         distanceFactorY = -1 * (sin(angle) * (50 - distance));
       }
+      else if (distance > 100) {
+        if (mouseX > posX) {
+          distanceFactorX += 2;
+        }
+        else {
+          distanceFactorX += -2;
+        }
+        if (mouseY > posY) {
+          distanceFactorY += 2;
+        }
+        else {
+          distanceFactorY += -2;
+      }
+    }
 
       newShapeSize = shapeSize;
 
