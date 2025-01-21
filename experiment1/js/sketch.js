@@ -16,6 +16,9 @@ let myInstance;
 let canvasContainer;
 var tileWidth, tileHeight;
 
+var lastMousex, lastMouseY;
+var creepFactor = 2;
+
 function resizeScreen() {
   console.log("Resizing...");
   resizeCanvas(canvasContainer.width(), canvasContainer.height());
@@ -43,7 +46,15 @@ function draw() {
 
 function redrawCanvas() {
   clear();
-  background(240,0,0);
+  background(196, 164, 132);
+
+  if (mouseX == lastMousex && mouseY == lastMouseY) {
+    creepFactor += .1;
+    if (creepFactor > 20) creepFactor = 20;
+  }
+  else creepFactor -= .1;
+  if (creepFactor < 2) creepFactor = 2;
+  
   let gridY, gridX, posX, posY;
   for (gridY = 0; gridY < tileCount; gridY += .5) {
     for (gridX = 0; gridX < tileCount; gridX += .25) {
@@ -58,6 +69,7 @@ function redrawCanvas() {
       
       let distanceFactorX = 0;
       let distanceFactorY = 0;
+      
       if (distance < 50) {
         // Move the shape away from the mouse
         distanceFactorX = -1 * (cos(angle) * (50 - distance));
@@ -65,20 +77,22 @@ function redrawCanvas() {
       }
       else if (distance > 100) {
         if (mouseX > posX) {
-          distanceFactorX += 2;
+          distanceFactorX += creepFactor;
         }
         else {
-          distanceFactorX += -2;
+          distanceFactorX += -creepFactor;
         }
         if (mouseY > posY) {
-          distanceFactorY += 2;
+          distanceFactorY += creepFactor / 2;
         }
         else {
-          distanceFactorY += -2;
+          distanceFactorY += -creepFactor / 2;
       }
     }
 
       newShapeSize = shapeSize;
+
+      
 
       push();
       translate(posX + distanceFactorX, posY + distanceFactorY);
@@ -88,4 +102,6 @@ function redrawCanvas() {
       pop();
     }
   }
+  lastMousex = mouseX;
+  lastMouseY = mouseY;
 }
