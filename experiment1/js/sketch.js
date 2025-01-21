@@ -10,10 +10,13 @@
 const VALUE1 = 1;
 const VALUE2 = 2;
 
+var tileCount = 10;
+
 // Globals
 let myInstance;
 let canvasContainer;
 var centerHorz, centerVert;
+var tileWidth, tileHeight, maxdist;
 
 class MyClass {
     constructor(param1, param2) {
@@ -31,7 +34,7 @@ function resizeScreen() {
   centerVert = canvasContainer.height() / 2; // Adjusted for drawing logic
   console.log("Resizing...");
   resizeCanvas(canvasContainer.width(), canvasContainer.height());
-  redrawCanvas(); // Redraw everything based on new size
+  //redrawCanvas(); // Redraw everything based on new size
 }
 
 // setup() function is called once when the program starts
@@ -40,6 +43,10 @@ function setup() {
   canvasContainer = $("#canvas-container");
   let canvas = createCanvas(canvasContainer.width(), canvasContainer.height());
   canvas.parent("canvas-container");
+  //Set up our variables
+  tileWidth = canvas.width / tileCount;
+  tileHeight = canvas.height / tileCount;
+  maxDist = sqrt(pow(canvas.width, 2) + pow(canvas.height, 2));
   // resize canvas is the page is resized
 
   // create an instance of the class
@@ -53,24 +60,30 @@ function setup() {
 
 // draw() function is called repeatedly, it's the main animation loop
 function draw() {
-  background(220);    
   // call a method on the instance
   myInstance.myMethod();
+  clear();
+  background(220);
+  let gridY, gridX, posX, posY;
+  for (gridY = 0; gridY < tileCount; gridY++) {
+    for (gridX = 0; gridX < tileCount; gridX++) {
 
-  // Set up rotation for the rectangle
-  push(); // Save the current drawing context
-  translate(centerHorz, centerVert); // Move the origin to the rectangle's center
-  rotate(frameCount / 100.0); // Rotate by frameCount to animate the rotation
-  fill(234, 31, 81);
-  noStroke();
-  rect(-125, -125, 250, 250); // Draw the rectangle centered on the new origin
-  pop(); // Restore the original drawing context
+      posX = tileWidth * gridX + tileWidth / 2;
+      posY = tileHeight * gridY + tileWidth / 2;
 
-  // The text is not affected by the translate and rotate
-  fill(255);
-  textStyle(BOLD);
-  textSize(140);
-  text("p5*", centerHorz - 105, centerVert + 40);
+      // calculate angle between mouse position and actual position of the shape
+      const angle = atan2(mouseY - posY, mouseX - posX) + (shapeAngle * (PI / 180));
+
+      if (sizeMode == 0) newShapeSize = shapeSize;
+
+      push();
+      translate(posX, posY);
+      rotate(angle);
+      noStroke();
+      image(currentShape, 0, 0, newShapeSize, newShapeSize);
+      pop();
+    }
+  }
 }
 
 // mousePressed() function is called once after every time a mouse button is pressed
