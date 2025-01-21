@@ -1,40 +1,25 @@
-// sketch.js - purpose and description here
-// Author: Your Name
-// Date:
+// sketch.js - Untouchable ant colony
+// Author: Ellie McKay
+// Date: 1/20/2025
 
-// Here is how you might set up an OOP p5.js project
-// Note that p5.js looks for a file called sketch.js
+//Some of the code in this file was generated using Github Co-Pilot
+// Inspiration and base code: http://www.generative-gestaltung.de/2/sketches/?01_P/P_2_1_1_04
+//Ant PNG: https://www.freepnglogos.com/uploads/ant-png/ant-mixed-clip-art-stormdesignz-3.png
 
 // Constants - User-servicable parts
 // In a longer project I like to put these in a separate file
-const VALUE1 = 1;
-const VALUE2 = 2;
-
-var tileCount = 10;
+var tileCount = 5;
+var shapeSize = 30;
 
 // Globals
 let myInstance;
 let canvasContainer;
-var centerHorz, centerVert;
-var tileWidth, tileHeight, maxdist;
-
-class MyClass {
-    constructor(param1, param2) {
-        this.property1 = param1;
-        this.property2 = param2;
-    }
-
-    myMethod() {
-        // code to run when method is called
-    }
-}
+var tileWidth, tileHeight;
 
 function resizeScreen() {
-  centerHorz = canvasContainer.width() / 2; // Adjusted for drawing logic
-  centerVert = canvasContainer.height() / 2; // Adjusted for drawing logic
   console.log("Resizing...");
   resizeCanvas(canvasContainer.width(), canvasContainer.height());
-  //redrawCanvas(); // Redraw everything based on new size
+  redrawCanvas(); // Redraw everything based on new size
 }
 
 // setup() function is called once when the program starts
@@ -46,47 +31,47 @@ function setup() {
   //Set up our variables
   tileWidth = canvas.width / tileCount;
   tileHeight = canvas.height / tileCount;
-  maxDist = sqrt(pow(canvas.width, 2) + pow(canvas.height, 2));
+  currentShape = loadImage("img/ant.png");
   // resize canvas is the page is resized
-
-  // create an instance of the class
-  myInstance = new MyClass("VALUE1", "VALUE2");
-
-  $(window).resize(function() {
-    resizeScreen();
-  });
   resizeScreen();
 }
 
 // draw() function is called repeatedly, it's the main animation loop
 function draw() {
-  // call a method on the instance
-  myInstance.myMethod();
-  clear();
-  background(220);
-  let gridY, gridX, posX, posY;
-  for (gridY = 0; gridY < tileCount; gridY++) {
-    for (gridX = 0; gridX < tileCount; gridX++) {
+  redrawCanvas();
+}
 
-      posX = tileWidth * gridX + tileWidth / 2;
-      posY = tileHeight * gridY + tileWidth / 2;
+function redrawCanvas() {
+  clear();
+  background(240,0,0);
+  let gridY, gridX, posX, posY;
+  for (gridY = 0; gridY < tileCount; gridY += .5) {
+    for (gridX = 0; gridX < tileCount; gridX += .25) {
+
+      posX = tileWidth * gridX + 25;
+      posY = tileHeight * gridY + 50;
 
       // calculate angle between mouse position and actual position of the shape
-      const angle = atan2(mouseY - posY, mouseX - posX) + (shapeAngle * (PI / 180));
+      const angle = atan2(mouseY - posY, mouseX - posX);
+      // calculate the distance to the mouse position
+      const distance = dist(mouseX, mouseY, posX, posY);
+      
+      let distanceFactorX = 0;
+      let distanceFactorY = 0;
+      if (distance < 50) {
+        // Move the shape away from the mouse
+        distanceFactorX = -1 * (cos(angle) * (50 - distance));
+        distanceFactorY = -1 * (sin(angle) * (50 - distance));
+      }
 
-      if (sizeMode == 0) newShapeSize = shapeSize;
+      newShapeSize = shapeSize;
 
       push();
-      translate(posX, posY);
+      translate(posX + distanceFactorX, posY + distanceFactorY);
       rotate(angle);
       noStroke();
       image(currentShape, 0, 0, newShapeSize, newShapeSize);
       pop();
     }
   }
-}
-
-// mousePressed() function is called once after every time a mouse button is pressed
-function mousePressed() {
-    // code to run when mouse is pressed
 }
