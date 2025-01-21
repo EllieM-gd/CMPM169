@@ -2,6 +2,8 @@
 // Author: Your Name
 // Date:
 
+//Font Source: https://www.fontspace.com/whale-i-tried-font-f30502
+
 // Here is how you might set up an OOP p5.js project
 // Note that p5.js looks for a file called sketch.js
 
@@ -15,14 +17,57 @@ let myInstance;
 let canvasContainer;
 var centerHorz, centerVert;
 
+const doSort = true;
+const rowDirection = 'both';
+
+const fontFile = "text/WhaleITriedRegular.ttf";
+const textFile = "text/doawktranscript.txt";
+
 class MyClass {
-    constructor(param1, param2) {
-        this.property1 = param1;
-        this.property2 = param2;
+    constructor(font, textLocation) {
+        this.font = loadFont(font);
+        this.loadStrings = loadStrings(textLocation);
+        this.loadStrings = this.loadStrings.join(" ");
+        console.log(this.loadStrings);
+        console.log(this.loadStrings[0][1]);
     }
 
-    myMethod() {
-        // code to run when method is called
+    setupTreeMap() {
+      this.words = this.loadStrings
+      console.log(this.words.length);
+    }
+
+    draw() {
+      textAlign(CENTER, BASELINE);
+      let height = 10;
+      let x,y = 0;
+      console.log(this.words[0]);
+      for (let i = 0; i < this.words.length; i++) {
+        const item = this.loadStrings[i];
+        x += item.length + 1;
+        if (x > 600) {
+          x = 0;
+          y += height;
+        }
+        fill(255);
+        stroke(0);
+        strokeWeight(1);
+        rect(x, y, item.length, height);
+    
+        let word = item.toLowerCase();
+        console.log(word)
+        textFont(this.font, 100);
+        let textW = textWidth(word);
+        let fontSize = 100 * (item.length * 0.9) / textW;
+        fontSize = min(fontSize, (height * 0.9));
+        textFont(this.font, fontSize);
+    
+        fill(0);
+        noStroke();
+        text(word, x + item.length / 2, y + height * 0.8);
+      }
+    
+      noLoop();
     }
 }
 
@@ -43,7 +88,8 @@ function setup() {
   // resize canvas is the page is resized
 
   // create an instance of the class
-  myInstance = new MyClass("VALUE1", "VALUE2");
+  myInstance = new MyClass(fontFile, textFile);
+  myInstance.setupTreeMap();
 
   $(window).resize(function() {
     resizeScreen();
@@ -53,27 +99,10 @@ function setup() {
 
 // draw() function is called repeatedly, it's the main animation loop
 function draw() {
-  background(220);    
-  // call a method on the instance
-  myInstance.myMethod();
-
-  // Set up rotation for the rectangle
-  push(); // Save the current drawing context
-  translate(centerHorz, centerVert); // Move the origin to the rectangle's center
-  rotate(frameCount / 100.0); // Rotate by frameCount to animate the rotation
-  fill(234, 31, 81);
-  noStroke();
-  rect(-125, -125, 250, 250); // Draw the rectangle centered on the new origin
-  pop(); // Restore the original drawing context
-
-  // The text is not affected by the translate and rotate
-  fill(255);
-  textStyle(BOLD);
-  textSize(140);
-  text("p5*", centerHorz - 105, centerVert + 40);
+  background(220);
 }
 
 // mousePressed() function is called once after every time a mouse button is pressed
 function mousePressed() {
-    // code to run when mouse is pressed
+  myInstance.draw();
 }
