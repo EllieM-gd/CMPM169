@@ -1,75 +1,31 @@
 // sketch.js - purpose and description here
-// Author: Your Name
-// Date:
+// Author: Ellie McKay
+// Date: 1/26/2025
 
-//Font Source: https://www.fontspace.com/whale-i-tried-font-f30502
+//Moon Source: https://www.vecteezy.com/vector-art/109549-vector-flat-moon-phases-icons
 
 // Here is how you might set up an OOP p5.js project
 // Note that p5.js looks for a file called sketch.js
 
-// Constants - User-servicable parts
-// In a longer project I like to put these in a separate file
-const VALUE1 = 1;
-const VALUE2 = 2;
+//TODO LIST::
+// - Add Moon cycles - Done but check "TODO" in drawMoon()
+// - Create clouds and make them move accross screen
+// - -  Cast shadows depending on the clouds location
+// - Add stars at night
+
+
 
 // Globals
-let myInstance;
 let canvasContainer;
-var centerHorz, centerVert;
+let time;
 
-const doSort = true;
-const rowDirection = 'both';
+const baseGrassColor = [126, 240, 126];
+let grassColor = baseGrassColor;
 
-const fontFile = "text/WhaleITriedRegular.ttf";
-const textFile = "text/doawktranscript.txt";
+let fullMoon, wncMoon, wngMoon, wxgMoon, wxcMoon, fstqMoon, thrdqMoon, newMoon;
+let moonIndex = 0;
+let moonPhases = [];
 
-class MyClass {
-    constructor(font, textLocation) {
-        this.font = loadFont(font);
-        this.loadStrings = loadStrings(textLocation);
-        this.loadStrings = this.loadStrings.join(" ");
-        console.log(this.loadStrings);
-        console.log(this.loadStrings[0][1]);
-    }
-
-    setupTreeMap() {
-      this.words = this.loadStrings
-      console.log(this.words.length);
-    }
-
-    draw() {
-      textAlign(CENTER, BASELINE);
-      let height = 10;
-      let x,y = 0;
-      console.log(this.words[0]);
-      for (let i = 0; i < this.words.length; i++) {
-        const item = this.loadStrings[i];
-        x += item.length + 1;
-        if (x > 600) {
-          x = 0;
-          y += height;
-        }
-        fill(255);
-        stroke(0);
-        strokeWeight(1);
-        rect(x, y, item.length, height);
-    
-        let word = item.toLowerCase();
-        console.log(word)
-        textFont(this.font, 100);
-        let textW = textWidth(word);
-        let fontSize = 100 * (item.length * 0.9) / textW;
-        fontSize = min(fontSize, (height * 0.9));
-        textFont(this.font, fontSize);
-    
-        fill(0);
-        noStroke();
-        text(word, x + item.length / 2, y + height * 0.8);
-      }
-    
-      noLoop();
-    }
-}
 
 function resizeScreen() {
   centerHorz = canvasContainer.width() / 2; // Adjusted for drawing logic
@@ -79,30 +35,104 @@ function resizeScreen() {
   // redrawCanvas(); // Redraw everything based on new size
 }
 
+function setImageVariables(){
+  fullMoon = loadImage("src/FullMoon.png");
+  wncMoon = loadImage("src/WaningCrescent.png");
+  wngMoon = loadImage("src/WaningGibbous.png");
+  wxgMoon = loadImage("src/WaxingGibbous.png");
+  wxcMoon = loadImage("src/WaxingCrescent.png");
+  fstqMoon = loadImage("src/FirstQuarter.png");
+  thrdqMoon = loadImage("src/ThirdQuarter.png");
+  moonPhases = [fullMoon, wngMoon, thrdqMoon, wncMoon, newMoon, wxcMoon, fstqMoon, wxgMoon]
+}
+
+function updateMoon(){
+  moonIndex += 1;
+  if (moonIndex >= moonPhases.length) moonIndex = 0;
+}
+
 // setup() function is called once when the program starts
 function setup() {
   // place our canvas, making it fit our container
   canvasContainer = $("#canvas-container");
   let canvas = createCanvas(canvasContainer.width(), canvasContainer.height());
   canvas.parent("canvas-container");
+  setImageVariables();
   // resize canvas is the page is resized
 
-  // create an instance of the class
-  myInstance = new MyClass(fontFile, textFile);
-  myInstance.setupTreeMap();
-
+  cycleTime = 60;  // Number of seconds for a day/night cycle
+  frameRate(360) 
+  time = 0;
   $(window).resize(function() {
     resizeScreen();
   });
   resizeScreen();
 }
 
+function handleTime(){
+  if (time >= cycleTime) {
+    time = 0;
+    updateMoon();
+  }
+}
+
 // draw() function is called repeatedly, it's the main animation loop
 function draw() {
-  background(220);
+  time += 1/60 + time/40000; //Gets faster as time goes on. Prob needs adjusting
+  handleTime();
+  let sun = (sin(time * 2 * PI / cycleTime)/2 + 0.5) // 
+  //console.log(time/40000)
+
+  if (sun < 0.2) {
+    sun = 0.2
+  } 
+  
+  background(135 * sun, 206 * sun, 235 * sun); //Background sky based on time of day
+  grassColor = [baseGrassColor[0] * sun, baseGrassColor[1] * sun, baseGrassColor[2] * sun]
+  
+  drawSun();
+  drawMoon();
+  drawGrass();
 }
+
+
+
+function drawGrass() {
+  push()
+    fill(grassColor)
+    rect(0, height-40, width, height/4)
+  pop()
+}
+
+function drawSun() {
+  push()
+    translate(width/2, height)
+    rotate(-PI + time/cycleTime * 2 * PI)
+    translate(height, 0)
+    fill(255, 255, 0)
+    stroke(255, 255, 100)
+    circle(0, 0, 50)
+  pop()
+}
+
+function drawMoon() {
+  push()
+    translate(width/2, height)
+    //TODO: Make the moon not rotate when moving around the screen.
+    rotate(-2 * PI + time/cycleTime * 2 * PI)
+    console.log(-2 * PI + time/cycleTime * 2 * PI)
+    translate(height, 0)
+    if (moonPhases[moonIndex] != newMoon) {
+      image(moonPhases[moonIndex], 0, 0, 50, 50)
+    }
+  pop()
+}
+
+
+
 
 // mousePressed() function is called once after every time a mouse button is pressed
 function mousePressed() {
-  myInstance.draw();
+  // Do something 
+  return;
 }

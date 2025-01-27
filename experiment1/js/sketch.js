@@ -18,6 +18,8 @@ var tileWidth, tileHeight;
 
 var lastMousex, lastMouseY;
 var creepFactor = 2;
+const maxcreepFactor = 20;
+const creepSpeed = .2;
 
 function resizeScreen() {
   console.log("Resizing...");
@@ -49,10 +51,10 @@ function redrawCanvas() {
   background(196, 164, 132);
 
   if (mouseX == lastMousex && mouseY == lastMouseY) {
-    creepFactor += .1;
-    if (creepFactor > 20) creepFactor = 20;
+    creepFactor += creepSpeed;
+    if (creepFactor > maxcreepFactor) creepFactor = maxcreepFactor;
   }
-  else creepFactor -= .1;
+  else creepFactor -= creepSpeed;
   if (creepFactor < 2) creepFactor = 2;
   
   let gridY, gridX, posX, posY;
