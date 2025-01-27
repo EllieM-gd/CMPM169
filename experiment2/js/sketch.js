@@ -2,14 +2,12 @@
 // Author: Ellie McKay
 // Date: 1/26/2025
 
-//Moon Source: https://www.vecteezy.com/vector-art/109549-vector-flat-moon-phases-icons
+// Source P5.js: 
+// Moon Source: https://www.vecteezy.com/vector-art/109549-vector-flat-moon-phases-icons
 
-// Here is how you might set up an OOP p5.js project
-// Note that p5.js looks for a file called sketch.js
+// Some of the code in this file was initially generated with github co-pilot.
 
 //TODO LIST::
-// - Add Moon cycles - Done but check "TODO" in drawMoon()
-// - Create clouds and make them move accross screen
 // - -  Cast shadows depending on the clouds location
 // - Add stars at night
 
@@ -19,12 +17,65 @@
 let canvasContainer;
 let time;
 
+// Colors
 const baseGrassColor = [126, 240, 126];
+const cloudBaseColor = [180, 182, 183]
 let grassColor = baseGrassColor;
+let cloudColor = cloudBaseColor;
 
+// Moons
 let fullMoon, wncMoon, wngMoon, wxgMoon, wxcMoon, fstqMoon, thrdqMoon, newMoon;
 let moonIndex = 0;
 let moonPhases = [];
+
+// Clouds
+let clouds = [];
+
+class Cloud{
+  constructor(x, y, speed) {
+    this.x = x;
+    this.y = y;
+    this.speed = speed;
+  }
+
+  draw() {
+    //Source: https://editor.p5js.org/mena-landry/sketches/D7ql4Nd3V
+    fill(cloudColor);
+    noStroke();
+    ellipse(this.x, this.y, 70, 50);
+    ellipse(this.x + 10, this.y + 10, 70, 50);
+    ellipse(this.x - 20, this.y + 10, 70, 50);
+  }
+
+  move() {
+    this.x += this.speed;
+  }
+  checkInRange() {
+    return this.x > -100 && this.x < canvasContainer.width() + 100;
+  }
+
+}
+
+function createCloud(speed) {
+  let cloudX = 0;
+  let cloudSpeed = speed;
+  if (random(1) > 0.5) {
+    cloudX = canvasContainer.width() + 100;
+    cloudSpeed = -speed;
+  }
+  const cloudHeight = random(canvasContainer.height() * 0.1, canvasContainer.height() * 0.3);
+  const tempCloud = new Cloud(cloudX, cloudHeight, cloudSpeed);
+  clouds.push(tempCloud);
+}
+
+function createCloudAt(x,y,speed) {
+  let cloudSpeed = speed;
+  if (random(1) > 0.5) {
+    cloudSpeed = -speed;
+  }
+  const tempCloud = new Cloud(x, y, cloudSpeed);
+  clouds.push(tempCloud);
+}
 
 
 function resizeScreen() {
@@ -58,9 +109,10 @@ function setup() {
   let canvas = createCanvas(canvasContainer.width(), canvasContainer.height());
   canvas.parent("canvas-container");
   setImageVariables();
-  // resize canvas is the page is resized
+  
+  createCloud(0.6);
 
-  cycleTime = 60;  // Number of seconds for a day/night cycle
+  cycleTime = 60;  // Number of "seconds" for a day/night cycle
   frameRate(360) 
   time = 0;
   $(window).resize(function() {
@@ -70,6 +122,7 @@ function setup() {
 }
 
 function handleTime(){
+  time += 1/60 + time/40000; //Gets faster as time goes on. Prob needs adjusting
   if (time >= cycleTime) {
     time = 0;
     updateMoon();
@@ -78,21 +131,37 @@ function handleTime(){
 
 // draw() function is called repeatedly, it's the main animation loop
 function draw() {
-  time += 1/60 + time/40000; //Gets faster as time goes on. Prob needs adjusting
   handleTime();
-  let sun = (sin(time * 2 * PI / cycleTime)/2 + 0.5) // 
-  //console.log(time/40000)
+  let sun = (sin(time * 2 * PI / cycleTime)/2 + 0.5); //Sun value between 0 and 1
 
+  //Lock the sun to a minimum value so it doenst get too dark
   if (sun < 0.2) {
     sun = 0.2
-  } 
+  }
   
+  //1% chance of creating a cloud
+  if (random(1) > 0.999) {
+    createCloud(0.6);
+  }
+  
+  //Adjust colors based on times of day
   background(135 * sun, 206 * sun, 235 * sun); //Background sky based on time of day
   grassColor = [baseGrassColor[0] * sun, baseGrassColor[1] * sun, baseGrassColor[2] * sun]
+  cloudColor = [cloudBaseColor[0] * sun, cloudBaseColor[1] * sun, cloudBaseColor[2] * sun, cloudBaseColor[3]];
   
   drawSun();
   drawMoon();
   drawGrass();
+
+  //Draw clouds
+  for (i in clouds) {
+    clouds[i].draw();
+    clouds[i].move();
+    //Delete the cloud if its outside of the screen
+    if (!clouds[i].checkInRange()) {
+      clouds.splice(i, 1);
+    }
+  }
 }
 
 
@@ -118,10 +187,14 @@ function drawSun() {
 function drawMoon() {
   push()
     translate(width/2, height)
-    //TODO: Make the moon not rotate when moving around the screen.
-    rotate(-2 * PI + time/cycleTime * 2 * PI)
-    console.log(-2 * PI + time/cycleTime * 2 * PI)
+    //Rotate the angle of the canvas to get the moons position.
+    const angle = -2 * PI + time/cycleTime * 2 * PI
+    rotate(angle)
+    //Translate the canvas to the moons position
     translate(height, 0)
+
+    // Reverse the angle so that the moon is always rotated the same way.
+    rotate(-angle);
     if (moonPhases[moonIndex] != newMoon) {
       image(moonPhases[moonIndex], 0, 0, 50, 50)
     }
@@ -133,6 +206,6 @@ function drawMoon() {
 
 // mousePressed() function is called once after every time a mouse button is pressed
 function mousePressed() {
-  // Do something 
+  createCloudAt(mouseX, mouseY, 0.6);
   return;
 }
