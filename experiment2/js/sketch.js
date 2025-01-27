@@ -7,10 +7,6 @@
 
 // Some of the code in this file was initially generated with github co-pilot.
 
-//TODO LIST::
-// - -  Cast shadows depending on the clouds location
-// - Add stars at night
-
 
 
 // Globals
@@ -30,6 +26,9 @@ let moonPhases = [];
 
 // Clouds
 let clouds = [];
+
+let stars = [];
+let starsA = 0;
 
 class Cloud{
   constructor(x, y, speed) {
@@ -77,6 +76,10 @@ function createCloudAt(x,y,speed) {
   clouds.push(tempCloud);
 }
 
+function isNighttime() {
+  return time > cycleTime / 2;
+}
+
 
 function resizeScreen() {
   centerHorz = canvasContainer.width() / 2; // Adjusted for drawing logic
@@ -111,6 +114,7 @@ function setup() {
   setImageVariables();
   
   createCloud(0.6);
+  createStars();
 
   cycleTime = 60;  // Number of "seconds" for a day/night cycle
   frameRate(360) 
@@ -134,12 +138,12 @@ function draw() {
   handleTime();
   let sun = (sin(time * 2 * PI / cycleTime)/2 + 0.5); //Sun value between 0 and 1
 
-  //Lock the sun to a minimum value so it doenst get too dark
+  //Lock the sun to a minimum value so it doesn't get too dark
   if (sun < 0.2) {
     sun = 0.2
   }
   
-  //1% chance of creating a cloud
+  //.1% chance of creating a cloud
   if (random(1) > 0.999) {
     createCloud(0.6);
   }
@@ -148,6 +152,16 @@ function draw() {
   background(135 * sun, 206 * sun, 235 * sun); //Background sky based on time of day
   grassColor = [baseGrassColor[0] * sun, baseGrassColor[1] * sun, baseGrassColor[2] * sun]
   cloudColor = [cloudBaseColor[0] * sun, cloudBaseColor[1] * sun, cloudBaseColor[2] * sun, cloudBaseColor[3]];
+
+  //Draw stars at night
+  if (isNighttime()) {
+    //Determine stars alpha/brightness value based on time of night or moon phase
+    if (moonPhases[moonIndex] != newMoon) starsA = abs(45-time)
+    else starsA = 10; //New Moon = Lots of stars all night long
+    //If its a full moon, make the stars dimmer
+    if (moonPhases[moonIndex] == fullMoon) starsA = 2;
+    drawStars(starsA);
+  }
   
   drawSun();
   drawMoon();
@@ -157,11 +171,24 @@ function draw() {
   for (i in clouds) {
     clouds[i].draw();
     clouds[i].move();
+    drawShadow(clouds[i].x - 40, clouds[i].x + 40,sun)
     //Delete the cloud if its outside of the screen
     if (!clouds[i].checkInRange()) {
       clouds.splice(i, 1);
     }
   }
+}
+
+function drawShadow(minx,maxx,sun) {
+  push()
+    fill(0, 0, 0, 50 * sun)
+    beginShape()
+      vertex(minx, height-40)
+      vertex(maxx, height-40)
+      vertex(maxx, height)
+      vertex(minx, height)
+    endShape(CLOSE)
+  pop()
 }
 
 
@@ -183,6 +210,24 @@ function drawSun() {
     circle(0, 0, 50)
   pop()
 }
+
+function drawStars(a) {
+  push()
+    console.log(150 * (a/5), a)
+    for (starsIndex in stars) {
+      fill((100 * a/3))
+      noStroke()
+      circle(stars[starsIndex][0], stars[starsIndex][1], 2)
+    }
+  pop()
+}
+
+function createStars(){
+  for (let i = 0; i < 50; i++) {
+    stars.push([random(width), random(height/2, 0)])
+  }
+}
+
 
 function drawMoon() {
   push()
