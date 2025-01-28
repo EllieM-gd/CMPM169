@@ -117,7 +117,7 @@ function setup() {
   createStars();
 
   cycleTime = 60;  // Number of "seconds" for a day/night cycle
-  frameRate(360) 
+  frameRate(60) 
   time = 0;
   $(window).resize(function() {
     resizeScreen();
@@ -126,7 +126,7 @@ function setup() {
 }
 
 function handleTime(){
-  time += 1/60 + time/40000; //Gets faster as time goes on. Prob needs adjusting
+  time += 1/30 + time/40000; //Gets faster as time goes on. Prob needs adjusting
   if (time >= cycleTime) {
     time = 0;
     updateMoon();
@@ -213,7 +213,6 @@ function drawSun() {
 
 function drawStars(a) {
   push()
-    console.log(150 * (a/5), a)
     for (starsIndex in stars) {
       fill((100 * a/3))
       noStroke()
