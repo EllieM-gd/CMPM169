@@ -1,13 +1,11 @@
-// sketch.js - purpose and description here
+// sketch.js - Day/Night cycles with moon phases and clouds
 // Author: Ellie McKay
 // Date: 1/26/2025
 
-// Source P5.js: 
+// Source P5.js: https://editor.p5js.org/rjgilmour/sketches/PJCF1AdrC
 // Moon Source: https://www.vecteezy.com/vector-art/109549-vector-flat-moon-phases-icons
 
 // Some of the code in this file was initially generated with github co-pilot.
-
-
 
 // Globals
 let canvasContainer;
@@ -27,6 +25,7 @@ let moonPhases = [];
 // Clouds
 let clouds = [];
 
+// Stars
 let stars = [];
 let starsA = 0;
 
@@ -52,7 +51,6 @@ class Cloud{
   checkInRange() {
     return this.x > -100 && this.x < canvasContainer.width() + 100;
   }
-
 }
 
 function createCloud(speed) {
@@ -79,7 +77,6 @@ function createCloudAt(x,y,speed) {
 function isNighttime() {
   return time > cycleTime / 2;
 }
-
 
 function resizeScreen() {
   centerHorz = canvasContainer.width() / 2; // Adjusted for drawing logic
@@ -191,8 +188,6 @@ function drawShadow(minx,maxx,sun) {
   pop()
 }
 
-
-
 function drawGrass() {
   push()
     fill(grassColor)
@@ -227,7 +222,6 @@ function createStars(){
   }
 }
 
-
 function drawMoon() {
   push()
     translate(width/2, height)
@@ -245,11 +239,9 @@ function drawMoon() {
   pop()
 }
 
-
-
-
 // mousePressed() function is called once after every time a mouse button is pressed
 function mousePressed() {
+  if (mouseY > canvasContainer.height() - 40) return;
   createCloudAt(mouseX, mouseY, 0.6);
   return;
 }
