@@ -6,6 +6,7 @@
 //Game where you unlock things by making hand gestures
 //Drawing program where you can draw with your hands
 //Draw with your fingers. Pinch to not draw?
+//Game where you have to dodge obstacles with your hands
 
 let handPose;
 let video;
@@ -15,15 +16,19 @@ let isDrawing = false;
 let artSize = 20;
 let savedPoints = [];
 let artColor = [255, 0, 0];
+let outOfBoundsTimer = 10.0;
+const gameStarted = false;
 
 // Globals
 let myInstance;
 let canvasContainer;
 var centerHorz, centerVert;
+let handPNG;
 
 function preload() {
   // Load the handPose model
   handPose = ml5.handPose();
+  handPNG = loadImage('img/hand.png');
 }
 
 function resizeScreen() {
@@ -64,22 +69,25 @@ function draw() {
   scale(-1, 1);
   //draw video capture feed as image inside p5 canvas
   image(video, 0, 0, video.width, video.height);
+  background(0,0,100)
+
   drawPoints();
-  randomizeDrawing();
+  //randomizeDrawing();
 
   // Draw all the tracked hand points
   for (let i = 0; i < hands.length; i++) {
     let hand = hands[i];
     detectHandPosition(hand);
     if (isDetecting){
-      for (let j = 0; j < hand.keypoints.length; j++) {
-        let keypoint = hand.keypoints[j];
-        fill(0, 255, 0);
-        noStroke();
-        circle(keypoint.x, keypoint.y, 10);
-      }
-      if (isDrawing) savedPoints.push([hands[i].keypoints[8].x, hands[i].keypoints[8].y]);
+      console.log("Drawing Hand " + i);
+      drawPlayer(hand.keypoints[8].x, hand.keypoints[8].y);
+      //if (isDrawing) savedPoints.push([hands[i].keypoints[8].x, hands[i].keypoints[8].y]);
     }
+  }
+  if (isDetecting && hands.length == 0) {
+    outOfBoundsTimer -= 0.01;
+    outOfBoundsTimer = outOfBoundsTimer.toFixed(2);
+    drawTimer();
   }
 }
 
@@ -91,9 +99,27 @@ function randomizeDrawing() {
   if (artSize < 10) { artSize = 10; }
 }
 
+function drawPlayer(x,y) {
+  //Draw the player as a hand
+  image(handPNG, x - 40, y, 100, 100);
+}
+
+function drawTimer() {
+  //Draw the timer
+  push()
+  fill(255);
+  textSize(50);
+  scale(-1, 1);
+  text("Hand not found", -canvasContainer.width()/2, canvasContainer.height()/2+50);
+  text(outOfBoundsTimer, -canvasContainer.width()/2, canvasContainer.height()/2);
+  if (outOfBoundsTimer <= 0) {
+    //End the game
+  }
+  pop();
+}
 
 
-
+//Refactor to detect if the hand is on screen. If its not we'll start a counter that will end the game if it reaches 0
 function detectHandPosition(hand) {
   if (hand.keypoints[8].y > hand.keypoints[7].y){
     isDrawing = false;
