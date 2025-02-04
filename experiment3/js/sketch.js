@@ -16,8 +16,9 @@ let isDrawing = false;
 let artSize = 20;
 let savedPoints = [];
 let artColor = [255, 0, 0];
-let outOfBoundsTimer = 10.0;
+let outOfBoundsTimer = 5.0;
 const gameStarted = false;
+let gameOver = false;
 
 // Globals
 let myInstance;
@@ -71,7 +72,7 @@ function draw() {
   image(video, 0, 0, video.width, video.height);
   background(0,0,100)
 
-  drawPoints();
+  //drawPoints();
   //randomizeDrawing();
 
   // Draw all the tracked hand points
@@ -79,16 +80,21 @@ function draw() {
     let hand = hands[i];
     detectHandPosition(hand);
     if (isDetecting){
-      console.log("Drawing Hand " + i);
       drawPlayer(hand.keypoints[8].x, hand.keypoints[8].y);
-      //if (isDrawing) savedPoints.push([hands[i].keypoints[8].x, hands[i].keypoints[8].y]);
+      let randomNum = Math.floor(Math.random() * 3);
+      artColor[randomNum] += random(-15, 15);
+      let copy = artColor.slice();
+      //Save points for drawing later
+      if (!gameOver) savedPoints.push([hands[i].keypoints[8].x, hands[i].keypoints[8].y, copy]);
+      console.log(copy)
     }
   }
-  if (isDetecting && hands.length == 0) {
+  if (!gameOver && isDetecting && hands.length == 0) {
     outOfBoundsTimer -= 0.01;
     outOfBoundsTimer = outOfBoundsTimer.toFixed(2);
     drawTimer();
   }
+  if (gameOver) drawPoints();
 }
 
 function randomizeDrawing() {
@@ -113,7 +119,7 @@ function drawTimer() {
   text("Hand not found", -canvasContainer.width()/2, canvasContainer.height()/2+50);
   text(outOfBoundsTimer, -canvasContainer.width()/2, canvasContainer.height()/2);
   if (outOfBoundsTimer <= 0) {
-    //End the game
+    gameOver = true;
   }
   pop();
 }
@@ -152,9 +158,11 @@ function toggleDetection() {
 
 function drawPoints() {
   for (let i = 0; i < savedPoints.length; i++) {
-    fill(artColor);
+    push();
+    fill(savedPoints[i][2][0], savedPoints[i][2][1], savedPoints[i][2][2]);
     noStroke();
     circle(savedPoints[i][0], savedPoints[i][1], artSize);
+    pop();
   }
 }
 
