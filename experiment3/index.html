@@ -2,7 +2,7 @@
 <html>
 <head>
 	<!-- This title is used for tabs and bookmarks -->
-	<title>Experiment X - Subject/Topic</title>
+	<title>Experiment 3</title>
 
 	<!-- Use UTF character set, a good idea with any webpage -->
 	<meta charset="UTF-8" />
@@ -27,6 +27,7 @@
     <script type="text/javascript" src="../js/site.js" DEFER></script>
 	<!-- Use me for a JavaScript OOP Project -->
 	<script type="text/javascript" src="./js/project.js" DEFER></script>
+	<script type="text/javascript" src="./js/obstacle.js" DEFER></script>
 	<!-- Use me for a p5.js project -->
 	<script type="text/javascript" src="./js/sketch.js" DEFER></script>
 </head>
@@ -35,7 +36,7 @@
 	<main id="content">
 		<section>
 
-			<h1>Experiment X - Subject/Topic</h1>
+			<h1>Experiment 3 - Create an art piece CAMERA REQUIRED</h1>
 
 			<div class="minor-section">
 				<div id="canvas-container">
@@ -48,17 +49,17 @@
 
 			<div class="minor-section">
 				<h2>Description</h2>
-				<p>What are you trying to acomplish with this experiment?</p>
+				<p>With this experiment I wanted to utilize the camera to allow the user to create their own piece of art. I also wanted to make it play like a game.</p>
 			</div>
 
 			<div class="minor-section">
 				<h2>Technical</h2>
-				<p>Describe in detail what you did technically and how it works?</p>
+				<p>I used the p5.js camera capture feature, with ml5's hand detection algorithm to track the players index finger around the screen. I flipped the canvas so that when the user moves their hand left, the cursor moves left. As the user moves around the screen I add coordinates to a array that I will then print at the end of the game. I added obstacles that move around the screen, spawn randomly, and detect collision. They also disable once off the screen. Lastly I added a filter to give the project a more retro feel.</p>
 			</div>
 
 			<div class="minor-section">
 				<h2>Reflection</h2>
-				<p>Each person that worked on the code should reflect on the process, the difficulties, and the successes of the experiment.</p>
+				<p>Flipping the canvas caused a lot of pain later on in the project when I had to handle collision. Collision had a lot of issues, and maybe it wasn't the best idea for this project. Creating a drawing system that uses your hands was a lot of fun. I went through many iterations of what the drawing circles actually looked like, but I'm happy with the static but alternating color pattern I ended up with.</p>
 			</div>
 
 		</section>

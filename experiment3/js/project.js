@@ -1,34 +1,27 @@
-// project.js - purpose and description here
-// Author: Your Name
-// Date:
 
-// NOTE: This is how we might start a basic JavaaScript OOP project
+//Source: https://p5js.org/examples/3d-filter-shader/
+let displaceColors;
 
-// Constants - User-servicable parts
-// In a longer project I like to put these in a separate file
+let displaceColorsSrc = `
+precision highp float;
 
-// define a class
-class MyProjectClass {
-  // constructor function
-  constructor(param1, param2) {
-    // set properties using 'this' keyword
-    this.property1 = param1;
-    this.property2 = param2;
-  }
-  
-  // define a method
-  myMethod() {
-    // code to run when method is called
-  }
+uniform sampler2D tex0;
+varying vec2 vTexCoord;
+
+vec2 zoom(vec2 coord, float amount) {
+  vec2 relativeToCenter = coord - 0.5;
+  relativeToCenter /= amount; // Zoom in
+  return relativeToCenter + 0.5; // Put back into absolute coordinates
 }
 
-function main() {
-  // create an instance of the class
-  let myInstance = new MyProjectClass("value1", "value2");
-
-  // call a method on the instance
-  myInstance.myMethod();
+void main() {
+  // Get each color channel using coordinates with different amounts
+  // of zooms to displace the colors slightly
+  gl_FragColor = vec4(
+    texture2D(tex0, vTexCoord).r,
+    texture2D(tex0, zoom(vTexCoord, 1.05)).g,
+    texture2D(tex0, zoom(vTexCoord, 1.1)).b,
+    texture2D(tex0, vTexCoord).a
+  );
 }
-
-// let's get this party started - uncomment me
-//main();
+`;
