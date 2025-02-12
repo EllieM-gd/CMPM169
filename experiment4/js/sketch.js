@@ -3,10 +3,8 @@
 // Date: 2/9/2025
 
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@latest/build/three.module.js';
-import { randFloat } from '../../node_modules/three/src/math/MathUtils.js';
 
 // Globals
-let myInstance;
 let canvasContainer;
 let lastTime = 0;
 let rotation = true;
@@ -41,7 +39,7 @@ console.log(pointsCopy);
 //Convert the array of points into vertices
 for (let i = 0; i < points.length; i++) {
   const x = points[i][0]/2;
-  const y = randFloat(-10, 10);
+  const y = Math.random() * 40 - 20;
   const z = points[i][1]/2;
   points[i] = new THREE.Vector3(x, y, z);
 }
