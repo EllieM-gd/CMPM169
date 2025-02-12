@@ -3,6 +3,7 @@
 // Date: 2/9/2025
 
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@latest/build/three.module.js';
+import { randFloat } from '../../node_modules/three/src/math/MathUtils.js';
 
 // Globals
 let myInstance;
@@ -40,7 +41,7 @@ console.log(pointsCopy);
 //Convert the array of points into vertices
 for (let i = 0; i < points.length; i++) {
   const x = points[i][0]/2;
-  const y = 0;
+  const y = randFloat(-10, 10);
   const z = points[i][1]/2;
   points[i] = new THREE.Vector3(x, y, z);
 }
@@ -48,7 +49,7 @@ for (let i = 0; i < points.length; i++) {
 let path;
 let tubes = [];
 
-const light = new THREE.PointLight(0xffffff,5, 50);
+const light = new THREE.PointLight(0xffffff,10, 500);
 
 // Wireframe material
 const material = new THREE.MeshLambertMaterial({
@@ -61,31 +62,29 @@ const material = new THREE.MeshLambertMaterial({
   reflectivity: 0
 });		
 
-function createMaterial(color) {
+function createMaterial(color, wireframe) {
   const material = new THREE.MeshLambertMaterial({
     color: color,
     side : THREE.BackSide,
-    wireframe:true,
-    emissive: 0x26C6DA,
-    emissiveIntensity: 0.2,
+    wireframe:wireframe,
+    emissive: color,
+    emissiveIntensity: 0.3,
+    alphaHash: true
   });
   return material;
 }
 
-function createTube(pointsref, offset, color, main) {
+function createTube(pointsref, color, main, radius, wireframe) {
   // Rotate and scale the tube based on the offset
   const tubePoints = [];
   for (let i = 0; i < pointsref.length; i++) {
-    const angle = offset * Math.PI / 180; // Convert offset to radians
-    const x = pointsref[i].x * Math.cos(angle) - pointsref[i].z * Math.sin(angle);
-    const z = pointsref[i].x * Math.sin(angle) + pointsref[i].z * Math.cos(angle);
-    tubePoints[i] = new THREE.Vector3(x / 2, 0, z / 2);
+    tubePoints[i] = new THREE.Vector3(pointsref[i].x / 2, points[i].y, pointsref[i].z / 2);
   }
   if (main == true) path = new THREE.CatmullRomCurve3(tubePoints);
-  const geometry = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(tubePoints), 300, 2, 20, true);
-  const newmaterial = createMaterial(color);
+  const geometry = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(tubePoints), 300, radius, 20, true);
+  let newmaterial = createMaterial(color, wireframe);
+  if (main == true) newmaterial = material;
   const tube = new THREE.Mesh(geometry, newmaterial);
-  tube.scale.set(1 + offset / 10, 1 + offset / 10, 1 + offset / 10); // Scale based on offset
   return tube;
 }
 
@@ -99,11 +98,17 @@ function setup() {
   console.log("Setting up...");
   canvasContainer = $("#canvas-container");
 
-  tubes[0] = createTube(pointsCopy, 0, 0xE91E63, true);
-  tubes[1] = createTube(pointsCopy, -8, 0xF9A825, false);
-  tubes[2] = createTube(pointsCopy, 16, 0x1DE9B6, false);
-  tubes[3] = createTube(pointsCopy, -24, 0xF9A825, false);
-  tubes[4] = createTube(pointsCopy, 32, 0xE91E63, false);
+  tubes.push(createTube(pointsCopy, 0xE91E63, true, 2, true));
+  tubes.push(createTube(pointsCopy, 0xF9A825, false, 2.1, true));
+  tubes.push(createTube(pointsCopy, 0x1DE9B6, false, 2.2, true));
+  tubes.push(createTube(pointsCopy, 0xF9A825, false, 1.9, true));
+  tubes.push(createTube(pointsCopy, 0xE91E63, false, 1.8, true));
+  tubes.push(createTube(pointsCopy, 0xE91E63, false, 2.3, true));
+  //tubes.push(createTube(pointsCopy, 0x78909C, false, 4.0, false)); //This one creates an outside layer that is not wireframe.
+
+  //Make tube[4] slightly bigger in scale
+  tubes[4].scale.set(1.2, 5.2, 1.2);
+  tubes[2].scale.set(1.2, -5.2, 1.2);
 
   ww = canvasContainer.width();
   wh = canvasContainer.height();
@@ -111,6 +116,8 @@ function setup() {
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(45, ww / wh, 0.001, 1000);
   camera.position.z = 100;
+
+  //Add the objs to the scene
   for (let tube in tubes) {
     scene.add(tubes[tube]);
   }
@@ -122,21 +129,23 @@ function setup() {
   render();
 }
 
-let percentage = .06;
+let percentage = .00;
 function render(){
   const currentTime = performance.now();
   const deltaTime = (currentTime - lastTime) / 1000; // Convert to seconds
   lastTime = currentTime;
 
+  if (percentage > .85) percentage = 0.1;
+
   //Increase the percentage
-  percentage += 0.004 * deltaTime;
+  percentage += 0.01 * deltaTime;
   //Get the point at the specific percentage
   const p1 = path.getPointAt(percentage%1);
   const p2 = path.getPointAt((percentage + 0.01)%1);
   //Place the camera at the point
   camera.position.set(p1.x,p1.y,p1.z);
   camera.lookAt(p2);
-  if (rotation) camera.rotateZ(percentage * 100);
+  if (rotation) camera.rotateZ(percentage * 50);
   light.position.set(p2.x, p2.y, p2.z);
   
   //Render the scene
@@ -150,5 +159,6 @@ window.onload = setup;
 
 // if mouse clicked
 $(document).mousedown(function(e){
-  rotation = !rotation;
+  if (e.target == document.querySelector("canvas"))
+    rotation = !rotation;
 })
