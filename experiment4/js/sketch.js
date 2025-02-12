@@ -2,7 +2,7 @@
 // Author: Ellie McKay
 // Date: 2/9/2025
 
-import * as THREE from '../../node_modules/three/src/Three.js';
+import * as THREE from '../src/three.module.js';
 
 // Globals
 let myInstance;
@@ -122,7 +122,7 @@ function setup() {
   render();
 }
 
-let percentage = 0;
+let percentage = .06;
 function render(){
   const currentTime = performance.now();
   const deltaTime = (currentTime - lastTime) / 1000; // Convert to seconds
