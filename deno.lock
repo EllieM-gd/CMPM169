@@ -1,0 +1,7 @@
+{
+  "version": "4",
+  "remote": {
+    "https://cdn.jsdelivr.net/npm/three@latest/build/three.core.js": "1c4bd40b27cb1ec1effdabc4e1b47ba39f3f5616b2528afef9d5e740ae4be801",
+    "https://cdn.jsdelivr.net/npm/three@latest/build/three.module.js": "4ad3b32e7dd3bfe57146afb659158970a0352e5a0e376cbfe5a5b2ec71b475ae"
+  }
+}

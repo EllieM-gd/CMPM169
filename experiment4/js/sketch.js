@@ -2,7 +2,7 @@
 // Author: Ellie McKay
 // Date: 2/9/2025
 
-import * as THREE from '../src/three.module.js';
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@latest/build/three.module.js';
 
 // Globals
 let myInstance;
