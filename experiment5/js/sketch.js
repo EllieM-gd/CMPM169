@@ -87,12 +87,8 @@ function getKeyWord() {
 }
 
 
-let tick = 0;
 // draw() function is called repeatedly, it's the main animation loop
 function draw() {
-  console.log(arr_i);
-  console.log(finishedTextArray);
-  tick += 1;
   background(32);
   
   if (programState == 1 && waitingOnUser) {
