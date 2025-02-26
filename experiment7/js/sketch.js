@@ -16,6 +16,7 @@ let state = 0; //0 is nothing, 1 is updating, 2 is update success, 3 is wrong us
 //Create multiple categories to look at, IE: Heroes your best vs, Players you play with
 //Fix opacity of circles
 //Add state 3 handling 
+//Add options to choose seasons to look at. Valid Season IDs: 0, 1, 1.5
 
 function resizeScreen() {
   centerHorz = canvasContainer.width() / 2; // Adjusted for drawing logic
