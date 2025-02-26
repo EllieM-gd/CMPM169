@@ -8,6 +8,15 @@ let canvasContainer;
 let circles = [];
 let heroes = [];
 
+let slider;
+let state = 0; //0 is nothing, 1 is updating, 2 is update success, 3 is wrong username
+
+//TODO:
+//Fix circle spawn algorithm
+//Create multiple categories to look at, IE: Heroes your best vs, Players you play with
+//Fix opacity of circles
+//Add state 3 handling 
+
 function resizeScreen() {
   centerHorz = canvasContainer.width() / 2; // Adjusted for drawing logic
   centerVert = canvasContainer.height() / 2; // Adjusted for drawing logic
@@ -26,6 +35,7 @@ function setup() {
   canvas.parent("canvas-container");
   button = $('#run'); 
   update = $('#update');
+  slider = $('#uname');
   button.click(function() {
     //updateUsername();
     runAPIAndPrint()
@@ -40,17 +50,27 @@ function setup() {
   resizeScreen();
 }
 
+function reset() {
+  circles = [];
+  heroes = [];
+  state = 0;
+}
+
 
 function runAPIAndPrint() {
-  $.getJSON('http://localhost:3000/api/player', function(data) {
+  reset();
+  $.getJSON('http://localhost:3000/api/player', { username: slider.val() }, function(data) {
     console.log(data); // Now you can use the API response!
     createPlayerHeroArray(data);
-});
+  });
 }
 
 function updatePlayerInfo(){
-  $.getJSON('http://localhost:3000/api/update', function(data) {
+  reset();
+  state = 1;
+  $.getJSON('http://localhost:3000/api/update',{ username: slider.val() }, function(data) {
     console.log(data); // Now you can use the API response!
+    state = 2;
 });
 }
 
@@ -69,9 +89,12 @@ function createPlayerHeroArray(data){
 }
 
 function pushHeroStats(hero) {
+  // First hero scenario
   if (heroes.length == 0) {
     heroes.push(new Heroes(hero.hero_name, hero.hero_thumbnail, hero.play_time, hero.matches, hero.wins));
+    return;
   }
+  //Check if hero is already in array
   const heroIndex = heroes.findIndex(heroObj => heroObj.isHero(hero.hero_name));
   if (heroIndex == -1) {
     heroes.push(new Heroes(hero.hero_name, hero.hero_thumbnail, hero.play_time, hero.matches, hero.wins));
@@ -81,62 +104,7 @@ function pushHeroStats(hero) {
 }
 
 
-
-
-
-class Heroes {
-  constructor(hero_name, hero_thumbnail, play_time, matches_played, matches_won) {
-    this.hero_name = hero_name;
-    this.hero_url = hero_thumbnail;
-    this.play_time = play_time;
-    this.matches_played = matches_played;
-    this.matches_won = matches_won;
-  }
-  isHero(hero_name){
-    return this.hero_name == hero_name;
-  }
-
-  calculateWinRate(){
-    return this.matches_won / this.matches_played;
-  }
-
-  addMatchesAndWins(matches, wins){
-    this.matches_played += matches;
-    this.matches_won += wins;
-  }
-
-  // getImage(){
-  //   $.getJSON('http://localhost:3000/api/image', this.hero_url, function(data) {
-  //     console.log(data); // Now you can use the API response!
-  //   });
-  // }
-
-}
-
-
-
-//Create a class named circle that we will store data in to display
-class Circle {
-  constructor(x, y, r, c, name) {
-    this.x = x;
-    this.y = y;
-    this.r = r;
-    this.c = c;
-    this.name = name;
-  }
-
-  display() {
-    fill(this.c);
-    ellipse(this.x, this.y, this.r, this.r);
-    //Display the name of the hero
-    fill(0);
-    text(this.name, this.x, this.y);
-  }
-}
-
-
 function createCriclesForHeros(){
-  console.log(heroes);
   let xPos = 50;
   let prevRadius = 0;
   for (let i = 0; i < heroes.length; i++) {
@@ -148,8 +116,7 @@ function createCriclesForHeros(){
     if (heroes[i].matches_played == 0) {
       prevRadius = 1;
     }
-    console.log(xPos);
-    circles.push(new Circle(xPos, 10 * (i + 1), prevRadius, randomColor, heroes[i].hero_name));
+    circles.push(new Circle(xPos, 10 * (i + 1), prevRadius, randomColor, heroes[i].hero_name, heroes[i].calculateWinRate()));
   }
 }
 
@@ -159,5 +126,41 @@ function draw() {
   background(255);
   for (let i = 0; i < circles.length; i++) {
     circles[i].display();
+    if (circles[i].grabbing) {
+      circles[i].handleGrabbing();
+    }
+  }
+
+  if (state == 1){
+    textSize(50);
+    fill("rgb(245, 26, 26)");
+    text("Updating...", centerHorz, centerVert);
+  }
+  if (state == 2){
+    textSize(50);
+    fill("rgb(26, 245, 26)");
+    text("Update Finished!", centerHorz, centerVert);
+  }
+  if (state == 3){
+    textSize(50);
+    fill("rgb(231, 167, 167)");
+    text("Username not found!", centerHorz, centerVert);
+  }
+
+
+}
+
+function mousePressed() {
+  for (let i = 0; i < circles.length; i++) {
+    if (circles[i].mouseOver()) {
+      circles[i].grabbing = true;
+      console.log("Grabbing");
+    }
+  }
+}
+
+function mouseReleased() {
+  for (let i = 0; i < circles.length; i++) {
+    circles[i].grabbing = false;
   }
 }
