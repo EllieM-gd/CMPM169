@@ -11,7 +11,7 @@ let circles = [];
 let heroes = [];
 let players = [];
 
-const ip = 'http://localhost:3000';
+const ip = 'https://marvelrivalsapiserver.onrender.com';
 
 let heroSearch = true;
 
