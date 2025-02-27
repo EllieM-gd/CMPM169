@@ -250,6 +250,9 @@ function createCirclesForPlayers(theFunction){
   let xPos = 50;
   let prevRadius = 0;
   for (let i = 0; i < players.length; i++) {
+    if (players[i].matches < 5) {
+      continue;
+    }
     //get a random color
     let randomColor = color(random(255), random(255), random(255));
     //Handle the placement on the x axis
