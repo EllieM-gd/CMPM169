@@ -18,9 +18,10 @@ function _updateUsername(string) {
 
 app.get('/api/player', async (req, res) => {
     try {
+        console.log("Running API");
         _updateUsername(req.query.username);
-        console.log("https://marvelrivalsapi.com/api/v1/player/" + username);
-        const response = await axios.get("https://marvelrivalsapi.com/api/v1/player/" + username + "?season=1", {
+        console.log("Checking season: " + req.query.season);
+        const response = await axios.get("https://marvelrivalsapi.com/api/v1/player/" + username + "?season=" + req.query.season, {
             headers: { 'x-api-key': apiKey }
         });
         res.json(response.data);

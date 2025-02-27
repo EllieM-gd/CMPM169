@@ -40,9 +40,24 @@
 					<!-- canvas will be added here -->
 				</div>
                 <div class="fullscreen-box">
-					<label for="uname">Username:</label>
+					<p>Username: </p>
 					<input type="text" id="uname" name="uname"><br><br>
-					<button id="run">Run</button>
+					<form>
+						<label for="seasons">Choose seasons:</label>
+						<select name="seasons" id="seasons" multiple>
+						  <option value="0">0</option>
+						  <option value="1">1</option>
+						  <option value="1.5">1.5</option>
+						</select>
+					  </form>
+					<p> Hero Visualization </p>
+					<button id="matches">Matches Played</button>
+					<button id="winrate">Winrate</button>
+					<button id="playtime">Playtime</button>
+					<p> Player Visualization </p>
+					<button id="friends">Matches With Friends</button>
+					<button id="friendwinrate">Winrate with Friends</button>
+					<p> Other </p>
                     <button id="update">Update</button>
                 </div>
 			</div>

@@ -10,21 +10,16 @@ constructor(x, y, r, c, name, winrate) {
     this.grabbing = false;
 }
 
-updateWinrate(){
-    if (this.winrate < 0.1 || isNaN(this.winrate)) {
-        this.winrate = 0.1;
-    }
-}
-
 display() {
-    this.updateWinrate();
-    fill(this.c, this.winrate);
+    fill(this.c);
     ellipse(this.x, this.y, this.r, this.r);
     //Display the name of the hero
     fill(0);
-    
+    if (this.r == 4) {
+        fill("red");
+    }
     textSize(15);
-    text(this.name, this.x, this.y);
+    text(this.name, this.x - this.r/4, this.y);
 }
 
 // Check if mouse is over the bubble
@@ -41,6 +36,21 @@ handleGrabbing(){
 }
   
 
+class Players {
+    constructor(name, matches, winrate) {
+        this.name = name;
+        this.matches = matches;
+        this.winrate = winrate;
+    }
+    isPlayer(name){
+        return this.name == name;
+    }
+    addMatchesAndWins(matches, wins){
+        this.matches += matches;
+        this.winrate = wins / this.matches;
+    }
+}
+
 
 class Heroes {
 constructor(hero_name, hero_thumbnail, play_time, matches_played, matches_won) {
@@ -55,7 +65,11 @@ isHero(hero_name){
 }
 
 calculateWinRate(){
-    return this.matches_won / this.matches_played;
+    let tempWinRate = this.matches_won / this.matches_played;
+    if (this.matches_played == 0) {
+        tempWinRate = 0;
+    }
+    return tempWinRate;
 }
 
 addMatchesAndWins(matches, wins){
