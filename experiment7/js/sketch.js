@@ -251,6 +251,7 @@ function createCirclesForPlayers(theFunction){
   let prevRadius = 0;
   for (let i = 0; i < players.length; i++) {
     if (players[i].matches < 5) {
+      console.log("Removing player due to lack of games: " + players[i].name);
       continue;
     }
     //get a random color
