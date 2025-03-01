@@ -169,6 +169,7 @@ function createPlayerHeroArray(data){
       pushHeroStats(data.heroes_unranked[i]);
     }
   }
+  console.log(heroes);
 }
 
 function createTeammateArray(data){
@@ -250,7 +251,7 @@ function createCirclesForPlayers(theFunction){
   let xPos = 50;
   let prevRadius = 0;
   for (let i = 0; i < players.length; i++) {
-    if (players[i].matches < 5) {
+    if (int(players[i].matches) < 5) {
       console.log("Removing player due to lack of games: " + players[i].name);
       continue;
     }
